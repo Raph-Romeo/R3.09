@@ -68,39 +68,3 @@ if __name__ == '__main__':
     threads = []
     stop_threads = False
     main()
-
-
-def write(client_socket, username):
-    while True:
-        try:
-            msg = input(f"{username}> ")
-            if msg == '/disconnect':
-                disconnect()
-            else:
-                message =f'{username}> {msg}'
-                client_socket.send(message.encode())
-        except:
-            disconnect()
-            sys.exit(-2)
-        if stop_threads:
-            break
-
-
-def main():
-    username = input('Insert username: ')
-    client_socket = connect()
-    T1 = threading.Thread(target=write, args=[client_socket, username])
-    T2 = threading.Thread(target=recieve, args=[client_socket])
-    T1.start()
-    T2.start()
-    T1.join()
-    T2.join()
-    client_socket.close()
-    print('Successfully disconnected from socket')
-    sys.exit(0)
-
-
-if __name__ == '__main__':
-    threads = []
-    stop_threads = False
-    main()
