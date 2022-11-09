@@ -9,13 +9,18 @@ def accept(server_socket):
 
 
 def communicate(server_socket):
+    global clients
     while True:
         for client in clients:
-            data = client.recv(1024).decode()
-            print(data)
-            for i in clients:
-                if client is not i:
-                    i.send(data.encode())
+            try:
+                data = client.recv(1024).decode()
+                print(data)
+                for i in clients:
+                    if client is not i:
+                        i.send(data.encode())
+            except:
+                client.close()
+                clients.remove(client)
 
 
 def server():
