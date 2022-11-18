@@ -27,44 +27,73 @@ def disconnect(client_socket):
     client_socket.close()
     stop_threads = True
 
+
 def recieve(client_socket):
     while True:
         data = client_socket.recv(1024).decode()
         print(data)
         if stop_threads:
-            break
+            sys.exit()
 
 
-def write(client_socket, username):
+def write(client_socket):
+    global username
+    global exit
     while True:
+        msg = input(f"{username}> ")
         try:
-            msg = input(f"{username}> ")
-            if msg == '/disconnect':
-                disconnect(client_socket)
-            else:
-                message =f'{username}> {msg}'
-                client_socket.send(message.encode())
+            if len(msg) > 0:
+                if msg[0] == '/':
+                    if msg == '/help':
+                        print('List of commands: \n /rename <NAME> (Changes username of client) \n /disconnect (Diconnect from server) \n /exit (Closes application and disconnects Client)')
+                    elif msg == '/disconnect':
+                        disconnect(client_socket)
+                    elif msg.split(' ')[0] == '/rename':
+                        if len(msg.split(' ')) != 2:
+                            print('Error. Usage : /rename <NAME>')
+                        else:
+                            username = msg.split(' ')[1]
+                    elif msg == '/exit':
+                        disconnect(client_socket)
+                        exit = True
+                        sys.exit()
+                    else:
+                        print('Unknown command. Type /help for a list of commands')
+                else:
+                    if len(msg) > 0:
+                        message =f'{username}> {msg}'
+                        client_socket.send(message.encode())
         except:
             disconnect(client_socket)
             sys.exit(-2)
         if stop_threads:
-            break
+            sys.exit()
 
 
 def main():
-    username = input('Insert username: ')
+    global stop_threads
+    global username
+    if username is None:
+        username = input('Insert username: ')
     client_socket = connect()
-    T1 = threading.Thread(target=write, args=[client_socket, username])
+    T1 = threading.Thread(target=write, args=[client_socket])
     T2 = threading.Thread(target=recieve, args=[client_socket])
     T1.start()
     T2.start()
     T1.join()
     T2.join()
+    client_socket.close()
     print('Successfully disconnected from socket')
-    sys.exit(0)
+    stop_threads = False
+    if not exit:
+        main()
+    else:
+        sys.exit()
 
 
 if __name__ == '__main__':
     threads = []
+    exit = False
+    username = None
     stop_threads = False
     main()
