@@ -45,7 +45,7 @@ def write(client_socket):
             if len(msg) > 0:
                 if msg[0] == '/':
                     if msg == '/help':
-                        print('List of commands: \n /rename <NAME> (Changes username of client) \n /disconnect (Diconnect from server) \n /exit (Closes application and disconnects Client)')
+                        print('List of commands: \n /rename <NAME> (Changes username of client) \n /disconnect (Diconnect from server) \n /exit (Closes application and disconnects Client) \n /shutdown (Shuts down the server)')
                     elif msg == '/disconnect':
                         disconnect(client_socket)
                     elif msg.split(' ')[0] == '/rename':
@@ -57,6 +57,10 @@ def write(client_socket):
                         disconnect(client_socket)
                         exit = True
                         sys.exit()
+                    elif msg == '/shutdown':
+                        message = f'<user_requestSD7231UEIQS823>SHUTDOWN'
+                        disconnect(client_socket)
+                        sys.exit()
                     else:
                         print('Unknown command. Type /help for a list of commands')
                 else:
@@ -64,6 +68,7 @@ def write(client_socket):
                         message =f'{username}> {msg}'
                         client_socket.send(message.encode())
         except:
+            print('Connection with server was lost.')
             disconnect(client_socket)
             sys.exit(-2)
         if stop_threads:
@@ -97,3 +102,4 @@ if __name__ == '__main__':
     username = None
     stop_threads = False
     main()
+
